@@ -1,0 +1,985 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Computer Selling - Workspace</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="{% static 'assets/favicon.ico' %}" />        <!-- Bootstrap icons-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+        <!-- Tailwind CSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <!-- Chart.js -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <!-- Core theme CSS (includes Bootstrap for modal functionality)-->
+        <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+    </head>
+      {% if messages %}
+        {% for message in messages %}
+        <div class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 min-w-[300px] max-w-[80%] {% if message.tags == 'error' %}bg-red-50 border-l-4 border-red-400 text-red-700{% else %}bg-green-50 border-l-4 border-green-400 text-green-700{% endif %} px-6 py-4 rounded-lg shadow-lg backdrop-blur-sm" role="alert">
+            <div class="flex items-center">
+                {% if message.tags == 'error' %}
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                {% else %}
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                {% endif %}
+                <span class="font-medium">{{ message }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <body class="flex flex-col min-h-screen bg-gray-50">
+        <!-- Navigation-->
+        <nav class="bg-gradient-to-r from-gray-900 to-gray-800 shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center space-x-8">
+                        <div class="flex-shrink-0">
+                            <a href="{% url 'home' %}" class="text-white text-2xl font-bold hover:text-gray-300 transition duration-300">
+                                BBU Admin
+                            </a>
+                        </div>
+                        <div class="hidden md:flex space-x-4">
+                            <a href="{% url 'home' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-300">
+                                Home
+                            </a>
+                            <a href="{% url 'about' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-300">
+                                About
+                            </a>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        {% if user.is_authenticated %}
+                        <button type="button" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition duration-300" data-bs-toggle="modal" data-bs-target="#userModal">
+                            <i class="bi bi-person-circle"></i>
+                            <span>{{ user.username }}</span>
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="flex-1 py-8">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900">Admin Workspace</h1>
+                    <p class="text-gray-600 mt-2">Manage your categories and products</p>
+                </div>                <div class="mb-8">
+                    <nav class="flex space-x-8 border-b border-gray-200">
+                        <button onclick="showTab('products')" id="products-tab" class="tab-button active border-gray-700 text-gray-700 py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200">
+                            <i class="bi bi-box-seam mr-2"></i>Products
+                        </button>                        <button onclick="showTab('daschboard')" id="daschboard-tab" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200">
+                            <i class="bi bi-speedometer2 mr-2"></i>Dashboard
+                        </button>
+                        <button onclick="showTab('orders')" id="orders-tab" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200">
+                            <i class="bi bi-receipt mr-2"></i>Orders
+                        </button>
+                    </nav>
+                </div><!-- Tab Contents -->
+                <!-- Products Tab Content -->
+                <div id="products-content" class="tab-content">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <!-- Categories Section -->
+                        <div class="lg:col-span-1">
+                            <div class="bg-white rounded-lg shadow-md">
+                                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                                    <h2 class="text-xl font-semibold text-gray-900">Categories</h2>
+                                    <button class="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-sm transition duration-300" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                                        <i class="bi bi-plus-circle mr-1"></i> Add
+                                    </button>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Products</th>
+                                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200">
+                                            {% for category in Categories %}
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ category.name }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    <span class="bg-gray-700 text-white px-2 py-1 rounded-full text-xs">{{ category.product_set.count }}</span>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    {% if user.is_superuser %}
+                                                    <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs transition duration-300" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal{{ category.id }}">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                    {% else %}
+                                                    <button class="bg-gray-400 text-white px-3 py-1 rounded text-xs cursor-not-allowed" data-bs-toggle="modal" data-bs-target="#noPermissionModal">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Products Section -->
+                        <div class="lg:col-span-2">
+                            <div class="bg-white rounded-lg shadow-md">
+                                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                                    <h2 class="text-xl font-semibold text-gray-900">Products</h2>
+                                    <button class="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-sm transition duration-300" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                                        <i class="bi bi-plus-circle mr-1"></i> Add Product
+                                    </button>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200">
+                                            {% for product in Products %}
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ product.name }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ product.category.name }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${{ product.price }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-center space-x-2">
+                                                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs transition duration-300" data-bs-toggle="modal" data-bs-target="#descriptionModal{{ product.id }}">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                    <button class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded text-xs transition duration-300" data-bs-toggle="modal" data-bs-target="#editProductModal{{ product.id }}">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs transition duration-300" data-bs-toggle="modal" data-bs-target="#deleteProductModal{{ product.id }}">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Pagination -->
+                                {% if page_obj.paginator.num_pages > 1 %}
+                                <div class="px-6 py-4 border-t border-gray-200">
+                                    <div class="flex justify-center">
+                                        <nav class="flex space-x-2">
+                                            {% if page_obj.has_previous %}
+                                            <a href="?page=1" class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded transition duration-300">
+                                                <i class="bi bi-chevron-double-left"></i>
+                                            </a>
+                                            <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded transition duration-300">
+                                                <i class="bi bi-chevron-left"></i>
+                                            </a>
+                                            {% endif %}
+
+                                            {% for num in page_obj.paginator.page_range %}
+                                                {% if page_obj.number == num %}
+                                                <span class="px-3 py-2 bg-gray-700 text-white rounded">{{ num }}</span>
+                                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                                <a href="?page={{ num }}" class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded transition duration-300">{{ num }}</a>
+                                                {% endif %}
+                                            {% endfor %}
+
+                                            {% if page_obj.has_next %}
+                                            <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded transition duration-300">
+                                                <i class="bi bi-chevron-right"></i>
+                                            </a>
+                                            <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded transition duration-300">
+                                                <i class="bi bi-chevron-double-right"></i>
+                                            </a>
+                                            {% endif %}
+                                        </nav>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>                <!-- Dashboard Tab Content -->
+                <div id="daschboard-content" class="tab-content" style="display: none;">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <!-- Statistics Cards -->
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <div class="flex items-center">
+                                <div class="p-3 bg-blue-100 rounded-full">
+                                    <i class="bi bi-box-seam text-blue-600 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm text-gray-500">Total Products</p>
+                                    <p class="text-2xl font-semibold text-gray-900">{{ Products|length }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <div class="flex items-center">
+                                <div class="p-3 bg-green-100 rounded-full">
+                                    <i class="bi bi-tags text-green-600 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm text-gray-500">Categories</p>
+                                    <p class="text-2xl font-semibold text-gray-900">{{ Categories|length }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <div class="flex items-center">
+                                <div class="p-3 bg-yellow-100 rounded-full">
+                                    <i class="bi bi-receipt text-yellow-600 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm text-gray-500">Total Orders</p>
+                                    <p class="text-2xl font-semibold text-gray-900">{{ Orders|length }}</p>
+                                </div>
+                            </div>
+                        </div>
+                          <div class="bg-white rounded-lg shadow-md p-6">
+                            <div class="flex items-center">
+                                <div class="p-3 bg-purple-100 rounded-full">
+                                    <i class="bi bi-currency-dollar text-purple-600 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm text-gray-500">Total Revenue</p>
+                                    <p class="text-2xl font-semibold text-gray-900">${{ total_orders_amount|floatformat:2 }}</p>
+                                </div>
+                            </div>
+                        </div>                    </div>
+                    
+                    <!-- Dashboard Grid with Recent Activity and Revenue Chart -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Recent Activity -->
+                        <div class="bg-white rounded-lg shadow-md">
+                            <div class="px-6 py-4 border-b border-gray-200">
+                                <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+                                    <i class="bi bi-activity mr-2 text-blue-600"></i>
+                                    Recent Activity
+                                </h2>
+                            </div>
+                            <div class="p-6">
+                                <div class="space-y-4">
+                                    {% for order in Orders|slice:":5" %}
+                                    <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                                        <div class="p-2 bg-blue-100 rounded-full">
+                                            <i class="bi bi-receipt text-blue-600"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-medium text-gray-900">
+                                                New order #{{ order.order_number }} from {{ order.customer_name }}
+                                            </p>
+                                            <p class="text-sm text-gray-500">
+                                                {{ order.created_at|timesince }} ago • ${{ order.total_amount }}
+                                            </p>
+                                        </div>
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full
+                                            {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800{% endif %}
+                                            {% if order.status == 'processing' %}bg-blue-100 text-blue-800{% endif %}
+                                            {% if order.status == 'shipped' %}bg-purple-100 text-purple-800{% endif %}
+                                            {% if order.status == 'delivered' %}bg-green-100 text-green-800{% endif %}
+                                            {% if order.status == 'cancelled' %}bg-red-100 text-red-800{% endif %}">
+                                            {{ order.get_status_display }}
+                                        </span>
+                                    </div>
+                                    {% empty %}
+                                    <div class="text-center py-8 text-gray-500">
+                                        <i class="bi bi-inbox text-4xl mb-2 block"></i>
+                                        No recent activity
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Revenue Chart -->
+                        <div class="bg-white rounded-lg shadow-md">
+                            <div class="px-6 py-4 border-b border-gray-200">
+                                <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+                                    <i class="bi bi-bar-chart mr-2 text-green-600"></i>
+                                    Monthly Revenue (Last 12 Months)
+                                </h2>
+                            </div>                            <div class="p-6">
+                                <div style="height: 300px;">
+                                    <canvas id="revenueChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Tab Content -->
+                <div id="orders-content" class="tab-content" style="display: none;">
+                    <div class="bg-white rounded-lg shadow-md">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+                                <i class="bi bi-receipt mr-2 text-blue-600"></i>
+                                Order Management
+                            </h2>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order #</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    {% for order in Orders %}
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            #{{ order.order_number }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <div>
+                                                <div class="font-medium">{{ order.customer_name }}</div>
+                                                <div class="text-gray-500">{{ order.customer_email }}</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            ${{ order.total_amount }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs font-medium rounded-full
+                                                {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800{% endif %}
+                                                {% if order.status == 'processing' %}bg-blue-100 text-blue-800{% endif %}
+                                                {% if order.status == 'shipped' %}bg-purple-100 text-purple-800{% endif %}
+                                                {% if order.status == 'delivered' %}bg-green-100 text-green-800{% endif %}
+                                                {% if order.status == 'cancelled' %}bg-red-100 text-red-800{% endif %}">
+                                                {{ order.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ order.created_at|date:"M d, Y" }}
+                                        </td>                                        <td class="px-6 py-4 whitespace-nowrap text-center space-x-2">
+                                            <button class="bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 rounded text-xs transition duration-300" data-bs-toggle="modal" data-bs-target="#orderDetailModal{{ order.id }}">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="bg-gray-700 hover:bg-gray-800 text-white px-2 py-1 rounded text-xs transition duration-300" data-bs-toggle="modal" data-bs-target="#updateStatusModal{{ order.id }}">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                            <i class="bi bi-inbox text-4xl mb-2 block"></i>
+                                            No orders found
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Order Pagination -->
+                        {% if order_page_obj.paginator.num_pages > 1 %}
+                        <div class="px-6 py-4 border-t border-gray-200">
+                            <div class="flex justify-center">
+                                <nav class="flex space-x-2">
+                                    {% if order_page_obj.has_previous %}
+                                    <a href="?order_page=1" class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded transition duration-300">
+                                        <i class="bi bi-chevron-double-left"></i>
+                                    </a>
+                                    <a href="?order_page={{ order_page_obj.previous_page_number }}" class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded transition duration-300">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </a>
+                                    {% endif %}
+
+                                    {% for num in order_page_obj.paginator.page_range %}
+                                        {% if order_page_obj.number == num %}
+                                        <span class="px-3 py-2 bg-gray-700 text-white rounded">{{ num }}</span>
+                                        {% elif num > order_page_obj.number|add:'-3' and num < order_page_obj.number|add:'3' %}
+                                        <a href="?order_page={{ num }}" class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded transition duration-300">{{ num }}</a>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if order_page_obj.has_next %}
+                                    <a href="?order_page={{ order_page_obj.next_page_number }}" class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded transition duration-300">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                    <a href="?order_page={{ order_page_obj.paginator.num_pages }}" class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded transition duration-300">
+                                        <i class="bi bi-chevron-double-right"></i>
+                                    </a>
+                                    {% endif %}
+                                </nav>
+                            </div>
+                        </div>                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-gray-900 text-white py-8 mt-auto">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <p class="text-gray-300">&copy; 2023 BBU Computer Store. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+
+        <!-- All existing modals remain the same, just update the form styling -->
+        <!-- User Modal -->
+        <div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-sm">
+                <div class="modal-content rounded-lg border-0 shadow-2xl">
+                    <div class="modal-header bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-t-lg py-3">
+                        <h1 class="modal-title text-lg font-semibold">User Information</h1>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4 bg-gray-50">
+                        <div class="text-center mb-4">
+                            <div class="bg-gray-200 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
+                                <i class="bi bi-person-circle text-4xl text-gray-700"></i>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <h4 class="text-gray-600 font-medium text-xs uppercase tracking-wide mb-1">Username</h4>
+                                <p class="text-base text-gray-900">{{ user.username }}</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <h4 class="text-gray-600 font-medium text-xs uppercase tracking-wide mb-1">Email</h4>
+                                <p class="text-base text-gray-900">{{ user.email|default:"Not provided" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-gray-100 rounded-b-lg flex justify-end space-x-2 p-3">
+                        <button type="button" class="px-3 py-1.5 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-lg transition duration-300" data-bs-dismiss="modal">Close</button>
+                        <a class="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-sm rounded-lg transition duration-300" href="{% url 'logout' %}">Logout</a>
+                        <a class="px-3 py-1.5 bg-gray-700 hover:bg-gray-800 text-white text-sm rounded-lg transition duration-300" href="{% url 'home' %}">Back Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Category Modal -->
+        <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addCategoryModalLabel">Add New Category</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="POST" action="{% url 'add_category' %}">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="categoryName" class="form-label">Category Name</label>
+                                <input type="text" class="form-control" id="categoryName" name="name" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Add Category</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Product Modal -->
+        <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addProductModalLabel">Add New Product</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="POST" action="{% url 'add_product' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="productName" class="form-label">Product Name</label>
+                                <input type="text" class="form-control" id="productName" name="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productCategory" class="form-label">Category</label>
+                                <select class="form-select" id="productCategory" name="category" required>
+                                    <option value="">Select a category</option>
+                                    {% for category in Categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productPrice" class="form-label">Price</label>
+                                <input type="number" class="form-control" id="productPrice" name="price" step="0.01" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productDescription" class="form-label">Description</label>
+                                <textarea class="form-control" id="productDescription" name="description" rows="3" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productImage" class="form-label">Product Image</label>
+                                <input type="file" class="form-control" id="productImage" name="image" accept="image/*" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Add Product</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Delete Modals -->
+        {% for category in Categories %}
+        <div class="modal fade" id="deleteCategoryModal{{ category.id }}" tabindex="-1" aria-labelledby="deleteCategoryModalLabel{{ category.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger">
+                        <h5 class="modal-title" id="deleteCategoryModalLabel{{ category.id }}">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            Delete Category
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-center">
+                            <i class="bi bi-trash" style="font-size: 3rem; color: #dc3545;"></i>
+                            <h5 class="mt-3">Confirm Deletion</h5>
+                            <p class="text-muted">Are you sure you want to delete the category "{{ category.name }}"?</p>
+                            {% if category.product_set.count > 0 %}
+                            <div class="alert alert-warning mt-3">
+                                <i class="bi bi-exclamation-circle-fill me-2"></i>
+                                Warning: This category has {{ category.product_set.count }} product(s). Deleting this category will also delete all associated products.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <form method="POST" action="{% url 'delete_category' category.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash me-1"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- No Permission Modal -->
+        <div class="modal fade" id="noPermissionModal" tabindex="-1" aria-labelledby="noPermissionModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning">
+                        <h5 class="modal-title" id="noPermissionModalLabel">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            Permission Denied
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-center">
+                            <i class="bi bi-shield-lock" style="font-size: 3rem; color: #ffc107;"></i>
+                            <h5 class="mt-3">Access Restricted</h5>
+                            <p class="text-muted">You don't have permission to delete categories. Only superusers can perform this action.</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Description and Delete Modals -->
+        {% for product in Products %}
+        <!-- Description Modal -->
+        <div class="modal fade" id="descriptionModal{{ product.id }}" tabindex="-1" aria-labelledby="descriptionModalLabel{{ product.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="descriptionModalLabel{{ product.id }}">{{ product.name }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid rounded mb-3">
+                            </div>
+                            <div class="col-md-8">
+                                <table class="table table-bordered">
+                                    <tr>
+                                        <th class="table-dark text-center" style="width: 30%">Product Name</th>
+                                        <td class="text-center">{{ product.name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="table-dark text-center">Category</th>
+                                        <td class="text-center">{{ product.category.name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="table-dark text-center">Price</th>
+                                        <td class="text-center">${{ product.price }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="table-dark text-center">Description</th>
+                                        <td class="text-right">{{ product.description|linebreaks }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Product Modal -->
+        <div class="modal fade" id="deleteProductModal{{ product.id }}" tabindex="-1" aria-labelledby="deleteProductModalLabel{{ product.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger">
+                        <h5 class="modal-title" id="deleteProductModalLabel{{ product.id }}">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            Delete Product
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-center">
+                            <i class="bi bi-trash" style="font-size: 3rem; color: #dc3545;"></i>
+                            <h5 class="mt-3">Confirm Deletion</h5>
+                            <p class="text-muted">Are you sure you want to delete the product "{{ product.name }}"?</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <form method="POST" action="{% url 'delete_product' product.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash me-1"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Product Modal -->
+        <div class="modal fade" id="editProductModal{{ product.id }}" tabindex="-1" aria-labelledby="editProductModalLabel{{ product.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editProductModalLabel{{ product.id }}">Edit Product</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="POST" action="{% url 'edit_product' product.id %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="editProductName{{ product.id }}" class="form-label">Product Name</label>
+                                <input type="text" class="form-control" id="editProductName{{ product.id }}" name="name" value="{{ product.name }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editProductCategory{{ product.id }}" class="form-label">Category</label>
+                                <select class="form-select" id="editProductCategory{{ product.id }}" name="category" required>
+                                    {% for category in Categories %}
+                                    <option value="{{ category.id }}" {% if category.id == product.category.id %}selected{% endif %}>{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editProductPrice{{ product.id }}" class="form-label">Price</label>
+                                <input type="number" class="form-control" id="editProductPrice{{ product.id }}" name="price" value="{{ product.price }}" step="0.01" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editProductDescription{{ product.id }}" class="form-label">Description</label>
+                                <textarea class="form-control" id="editProductDescription{{ product.id }}" name="description" rows="3" required>{{ product.description }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editProductImage{{ product.id }}" class="form-label">Product Image</label>
+                                <input type="file" class="form-control" id="editProductImage{{ product.id }}" name="image" accept="image/*">
+                                <small class="text-muted">Leave empty to keep current image</small>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>        {% endfor %}
+        
+        <!-- Order Modals -->
+        {% for order in Orders %}
+        <!-- Order Detail Modal -->
+        <div class="modal fade" id="orderDetailModal{{ order.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content rounded-lg border-0 shadow-2xl">                    <div class="modal-header bg-gradient-to-r from-gray-700 to-gray-800 text-white rounded-t-lg">
+                        <h5 class="modal-title font-semibold">Order #{{ order.order_number }} Details</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <h6 class="font-semibold text-gray-900 mb-3">Customer Information</h6>
+                                <div class="space-y-2 text-sm">
+                                    <p><span class="font-medium">Name:</span> {{ order.customer_name }}</p>
+                                    <p><span class="font-medium">Email:</span> {{ order.customer_email }}</p>
+                                    <p><span class="font-medium">Phone:</span> {{ order.customer_phone }}</p>
+                                </div>
+                            </div>
+                            <div>
+                                <h6 class="font-semibold text-gray-900 mb-3">Order Information</h6>
+                                <div class="space-y-2 text-sm">
+                                    <p><span class="font-medium">Date:</span> {{ order.created_at|date:"F d, Y - g:i A" }}</p>
+                                    <p><span class="font-medium">Total:</span> ${{ order.total_amount }}</p>
+                                    <p><span class="font-medium">Status:</span> 
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full
+                                            {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800{% endif %}
+                                            {% if order.status == 'processing' %}bg-blue-100 text-blue-800{% endif %}
+                                            {% if order.status == 'shipped' %}bg-purple-100 text-purple-800{% endif %}
+                                            {% if order.status == 'delivered' %}bg-green-100 text-green-800{% endif %}
+                                            {% if order.status == 'cancelled' %}bg-red-100 text-red-800{% endif %}">
+                                            {{ order.get_status_display }}
+                                        </span>
+                                    </p>
+                                    <p><span class="font-medium">Delivery:</span> 
+                                        {% if order.delivery_option == 'pickup' %}Store Pickup{% else %}Home Delivery{% endif %}
+                                        {% if order.province %} - {{ order.province }}{% endif %}
+                                    </p>
+                                    <p><span class="font-medium">Payment:</span> 
+                                        {% if order.payment_method == 'visa' %}Visa ****{{ order.card_last_four }}{% else %}Cash on Delivery{% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h6 class="font-semibold text-gray-900 mb-3">Order Items</h6>
+                        <div class="overflow-x-auto">
+                            <table class="w-full border border-gray-200 rounded-lg">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Product</th>
+                                        <th class="px-4 py-2 text-center text-sm font-medium text-gray-700">Price</th>
+                                        <th class="px-4 py-2 text-center text-sm font-medium text-gray-700">Quantity</th>
+                                        <th class="px-4 py-2 text-center text-sm font-medium text-gray-700">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    {% for item in order.items.all %}
+                                    <tr>
+                                        <td class="px-4 py-2 text-sm">{{ item.product.name }}</td>
+                                        <td class="px-4 py-2 text-center text-sm">${{ item.price }}</td>
+                                        <td class="px-4 py-2 text-center text-sm">{{ item.quantity }}</td>
+                                        <td class="px-4 py-2 text-center text-sm font-medium">${{ item.get_total_price }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-gray-50 rounded-b-lg">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Update Order Status Modal -->
+        <div class="modal fade" id="updateStatusModal{{ order.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-lg border-0 shadow-2xl">                    <div class="modal-header bg-gradient-to-r from-gray-700 to-gray-800 text-white rounded-t-lg">
+                        <h5 class="modal-title font-semibold">Update Order Status</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form method="POST" action="{% url 'update_order_status' order.id %}">
+                        <div class="modal-body p-6">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <p class="text-gray-700 mb-4">
+                                    <strong>Order #{{ order.order_number }}</strong><br>
+                                    Customer: {{ order.customer_name }}<br>
+                                    Current Status: 
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full
+                                        {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800{% endif %}
+                                        {% if order.status == 'processing' %}bg-blue-100 text-blue-800{% endif %}
+                                        {% if order.status == 'shipped' %}bg-purple-100 text-purple-800{% endif %}
+                                        {% if order.status == 'delivered' %}bg-green-100 text-green-800{% endif %}
+                                        {% if order.status == 'cancelled' %}bg-red-100 text-red-800{% endif %}">
+                                        {{ order.get_status_display }}
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="mb-4">
+                                <label for="status{{ order.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    New Status
+                                </label>                                
+                                <select name="status" id="status{{ order.id }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent">
+                                    {% for status_code, status_display in order.STATUS_CHOICES %}
+                                    <option value="{{ status_code }}" {% if status_code == order.status %}selected{% endif %}>
+                                        {{ status_display }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>                        <div class="modal-footer bg-gray-50 rounded-b-lg">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-dark">
+                                <i class="bi bi-check-circle mr-1"></i>
+                                Update Status
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <!-- Bootstrap core JS (for modal functionality)-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="{% static 'js/scripts.js' %}"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const alerts = document.querySelectorAll('[role="alert"]');
+                alerts.forEach(function(alert) {
+                    setTimeout(function() {
+                        alert.remove();
+                    }, 1500);
+                });
+            });
+            // Tab functionality
+            function showTab(tabName) {
+                // Hide all tab content
+                const tabContents = document.querySelectorAll('.tab-content');
+                tabContents.forEach(content => {
+                    content.style.display = 'none';
+                });
+                
+                // Remove active class from all tab buttons
+                const tabButtons = document.querySelectorAll('.tab-button');
+                tabButtons.forEach(button => {
+                    button.classList.remove('active');
+                    button.classList.remove('border-gray-700', 'text-gray-700');
+                    button.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                });
+                
+                // Show the selected tab content
+                const selectedContent = document.getElementById(tabName + '-content');
+                if (selectedContent) {
+                    selectedContent.style.display = 'block';
+                }
+                
+                // Add active class to the selected tab button
+                const selectedButton = document.getElementById(tabName + '-tab');
+                if (selectedButton) {
+                    selectedButton.classList.add('active');
+                    selectedButton.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                    selectedButton.classList.add('border-gray-700', 'text-gray-700');
+                }
+            }            // Initialize tabs on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                // Show products tab by default
+                showTab('products');
+                
+                // Initialize revenue chart
+                initializeRevenueChart();
+            });            // Initialize Revenue Chart
+            function initializeRevenueChart() {
+                const ctx = document.getElementById('revenueChart').getContext('2d');
+                const monthLabels = JSON.parse('{{ month_labels_json|escapejs }}');
+                const revenueData = JSON.parse('{{ monthly_revenue_json|escapejs }}');
+                
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: monthLabels,
+                        datasets: [{
+                            label: 'Revenue ($)',
+                            data: revenueData,
+                            borderColor: 'rgb(34, 197, 94)',
+                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: 'rgb(34, 197, 94)',
+                            pointBorderColor: 'rgb(255, 255, 255)',
+                            pointBorderWidth: 2,
+                            pointRadius: 6,
+                            pointHoverRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                titleColor: 'white',
+                                bodyColor: 'white',
+                                borderColor: 'rgb(34, 197, 94)',
+                                borderWidth: 1,
+                                callbacks: {
+                                    label: function(context) {
+                                        return 'Revenue: $' + context.parsed.y.toFixed(2);
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value.toFixed(0);
+                                    },
+                                    color: '#6B7280'
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: '#6B7280'
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                }
+                            }
+                        },
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        }
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>

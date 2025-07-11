@@ -1,0 +1,310 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Computer Selling</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="{% static 'assets/favicon.ico' %}" />
+        <!-- Bootstrap icons-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+        <!-- Tailwind CSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <!-- Core theme CSS (includes Bootstrap for modal functionality)-->
+        <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+        <style>
+            .alert {
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 1050;
+                min-width: 300px;
+                max-width: 80%;
+            }
+        </style>
+    </head>    {% if messages %}
+        {% for message in messages %}
+        <div class="alert fixed top-5 left-1/2 transform -translate-x-1/2 z-50 min-w-[300px] max-w-[80%] {% if message.tags == 'error' %}bg-red-50 border-l-4 border-red-400 text-red-700{% else %}bg-green-50 border-l-4 border-green-400 text-green-700{% endif %} px-6 py-4 rounded-lg shadow-lg backdrop-blur-sm" role="alert">
+            <div class="flex items-center">
+                {% if message.tags == 'error' %}
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                {% else %}
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                {% endif %}
+                <span class="font-medium">{{ message }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <body class="flex flex-col min-h-screen bg-gray-50">
+        <!-- Navigation-->
+        <nav class="bg-gradient-to-r from-gray-900 to-gray-800 shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Logo and Desktop Navigation -->
+                    <div class="flex items-center space-x-8">
+                        <!-- Logo -->
+                        <div class="flex-shrink-0">
+                            <a href="{% url 'home' %}" class="text-white text-2xl font-bold hover:text-gray-300 transition duration-300">
+                                BBU
+                            </a>
+                        </div>
+                        
+                        <!-- Desktop Navigation -->
+                        <div class="hidden md:block">
+                            <div class="flex items-baseline space-x-4">
+                                <a href="{% url 'home' %}" class="text-white hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-300">
+                                    Home
+                                </a>
+                                <a href="{% url 'about' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-300">
+                                    About
+                                </a>
+                                
+                                <!-- Products Dropdown -->
+                                <div class="relative">                                    <button id="products-dropdown" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium flex items-center transition duration-300" onclick="toggleProductsDropdown()">
+                                        {% if category %}
+                                            {{ category }}
+                                        {% else %}
+                                            All Products
+                                        {% endif %}
+                                        <svg class="ml-1 w-4 h-4 transition-transform duration-200" id="dropdown-icon" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </button>
+                                    <div id="products-dropdown-menu" class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg hidden z-50">
+                                        <div class="py-1">
+                                            <a href="{% url 'home' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-600 hover:text-white transition duration-300">All Products</a>
+                                            <hr class="border-gray-200">
+                                            <a href="{% url 'category' 'ASUS' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-600 hover:text-white transition duration-300">ASUS</a>
+                                            <a href="{% url 'category' 'LENOVO' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-600 hover:text-white transition duration-300">LENOVO</a>
+                                            <a href="{% url 'category' 'MAC' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-600 hover:text-white transition duration-300">MAC</a>
+                                            <a href="{% url 'category' 'DELL' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-600 hover:text-white transition duration-300">DELL</a>
+                                            <a href="{% url 'category' 'ACER' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-600 hover:text-white transition duration-300">ACER</a>
+                                            <a href="{% url 'category' 'MSI' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-600 hover:text-white transition duration-300">MSI</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                    <!-- Right side buttons -->
+                    <div class="hidden md:flex items-center space-x-4">
+                        {% if not user.is_staff %}                        <a href="{% url 'view_cart' %}" class="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition duration-300 shadow-md">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"></path>
+                            </svg>
+                            <span>Cart</span>
+                            <span class="bg-gray-900 text-white px-2 py-1 rounded-full text-xs">
+                                {% with cart_count=user.cart_set.count %}
+                                    {{ cart_count }}
+                                {% endwith %}
+                            </span>
+                        </a>
+                        {% endif %}
+                        
+                        {% if user.is_authenticated and not user.is_staff %}                        <a href="{% url 'order_history' %}" class="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition duration-300 shadow-md">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Orders</span>
+                        </a>
+                        {% endif %}
+                        
+                        {% if user.is_authenticated %}                            <button type="button" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition duration-300 shadow-md" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>{{ user.username }}</span>
+                            </button>
+                        {% else %}                            <a href="{% url 'login' %}" class="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition duration-300 shadow-md">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>Login</span>
+                            </a>
+                        {% endif %}
+                    </div>                    <!-- Mobile menu button -->
+                    <div class="md:hidden">
+                        <button type="button" class="bg-gray-800 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white" onclick="toggleMobileMenu()">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile menu -->
+            <div class="md:hidden hidden" id="mobile-menu">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-800">
+                    <a href="{% url 'home' %}" class="text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium">Home</a>
+                    <a href="{% url 'about' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">About</a>
+                    
+                    <!-- Mobile Products Dropdown -->
+                    <div class="relative">                        <button onclick="toggleMobileProductsDropdown()" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium w-full text-left flex items-center justify-between">
+                            Products
+                            <svg class="w-4 h-4 transition-transform duration-200" id="mobile-dropdown-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                        <div id="mobile-products-dropdown" class="hidden bg-gray-700 rounded-md mt-1 ml-3">
+                            <a href="{% url 'home' %}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600 hover:text-white rounded">All Products</a>
+                            <a href="{% url 'category' 'ASUS' %}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600 hover:text-white rounded">ASUS</a>
+                            <a href="{% url 'category' 'LENOVO' %}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600 hover:text-white rounded">LENOVO</a>
+                            <a href="{% url 'category' 'MAC' %}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600 hover:text-white rounded">MAC</a>
+                            <a href="{% url 'category' 'DELL' %}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600 hover:text-white rounded">DELL</a>
+                            <a href="{% url 'category' 'ACER' %}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600 hover:text-white rounded">ACER</a>
+                            <a href="{% url 'category' 'MSI' %}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600 hover:text-white rounded">MSI</a>
+                        </div>
+                    </div>
+                    
+                    {% if not user.is_staff %}
+                    <a href="{% url 'view_cart' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Cart ({{ user.cart_set.count }})</a>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                    <button type="button" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium w-full text-left" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        {{ user.username }}
+                    </button>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+            
+        <main class="flex-1">
+            {% block content %}
+            {% endblock %}
+        </main>
+        
+        <!-- Footer-->
+        <footer class="bg-gray-900 text-white py-8 mt-auto">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <p class="text-gray-300">&copy; 2023 BBU Computer Store. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+        
+        <!-- Bootstrap core JS (for modal functionality)-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="{% static 'js/scripts.js' %}"></script>        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Enhanced alert auto-dismiss functionality
+                const alerts = document.querySelectorAll('[role="alert"]');
+                alerts.forEach(function (alert, index) {
+                    // Add a slight delay for multiple alerts
+                    setTimeout(function () {
+                        // Add fade out animation before removal
+                        alert.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+                        alert.style.opacity = '0';
+                        alert.style.transform = 'translateY(-10px) translateX(-50%) scale(0.95)';
+                        
+                        setTimeout(function () {
+                            alert.remove();
+                        }, 500);
+                    }, 3000 + (index * 500)); // Stagger multiple alerts
+                });
+            });
+
+            function toggleMobileMenu() {
+                const menu = document.getElementById('mobile-menu');
+                menu.classList.toggle('hidden');
+            }
+
+            function toggleProductsDropdown() {
+                const dropdown = document.getElementById('products-dropdown-menu');
+                const icon = document.getElementById('dropdown-icon');
+                
+                dropdown.classList.toggle('hidden');
+                // Use transform style for smooth rotation
+                icon.style.transform = dropdown.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+            }
+
+            function toggleMobileProductsDropdown() {
+                const dropdown = document.getElementById('mobile-products-dropdown');
+                const icon = document.getElementById('mobile-dropdown-icon');
+                
+                dropdown.classList.toggle('hidden');
+                // Use transform style for smooth rotation
+                icon.style.transform = dropdown.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+            }
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(event) {
+                const productsDropdown = document.getElementById('products-dropdown');
+                const productsDropdownMenu = document.getElementById('products-dropdown-menu');
+                const mobileProductsDropdown = document.getElementById('mobile-products-dropdown');
+                
+                // Close desktop dropdown
+                if (productsDropdown && !productsDropdown.contains(event.target)) {
+                    productsDropdownMenu.classList.add('hidden');
+                    document.getElementById('dropdown-icon').style.transform = 'rotate(0deg)';
+                }
+                
+                // Close mobile dropdown when clicking outside mobile menu
+                const mobileMenu = document.getElementById('mobile-menu');
+                if (mobileMenu && !mobileMenu.contains(event.target)) {
+                    mobileProductsDropdown.classList.add('hidden');
+                    document.getElementById('mobile-dropdown-icon').style.transform = 'rotate(0deg)';
+                }
+            });
+        </script>
+
+        <!-- User Modal (moved outside nav for mobile compatibility) -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-sm">
+                <div class="modal-content rounded-lg border-0 shadow-2xl">
+                    <div class="modal-header bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-t-lg py-3">
+                        <h1 class="modal-title text-lg font-semibold" id="exampleModalLabel">User Information</h1>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4 bg-gray-50">
+                        <div class="text-center mb-4">
+                            <div class="bg-gray-200 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
+                                <svg class="w-10 h-10 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <h4 class="text-gray-600 font-medium text-xs uppercase tracking-wide mb-1">Username</h4>
+                                <p class="text-base text-gray-900">{% if user.username %}{{ user.username }}{% else %}Not provided{% endif %}</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <h4 class="text-gray-600 font-medium text-xs uppercase tracking-wide mb-1">First Name</h4>
+                                <p class="text-base text-gray-900">{% if user.first_name %}{{ user.first_name }}{% else %}Not provided{% endif %}</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <h4 class="text-gray-600 font-medium text-xs uppercase tracking-wide mb-1">Last Name</h4>
+                                <p class="text-base text-gray-900">{% if user.last_name %}{{ user.last_name }}{% else %}Not provided{% endif %}</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <h4 class="text-gray-600 font-medium text-xs uppercase tracking-wide mb-1">Email</h4>
+                                <p class="text-base text-gray-900 break-all">{% if user.email %}{{ user.email }}{% else %}Not provided{% endif %}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-gray-100 rounded-b-lg flex justify-end space-x-2 p-3">
+                        <button type="button" class="px-3 py-1.5 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-lg transition duration-300" data-bs-dismiss="modal">Close</button>
+                        <a class="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-sm rounded-lg transition duration-300" href="{% url 'logout' %}">Logout</a>
+                        {% if user.is_authenticated and user.is_staff %}
+                        <a class="px-3 py-1.5 bg-gray-700 hover:bg-gray-800 text-white text-sm rounded-lg transition duration-300" href="{% url 'workspace' %}">Workspace</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
